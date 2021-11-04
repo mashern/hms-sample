@@ -10,6 +10,8 @@ import androidx.lifecycle.Observer
 import androidx.lifecycle.ViewModelProvider
 import za.org.famba.exampleapp.R
 import za.org.famba.exampleapp.databinding.FragmentGalleryBinding
+import com.huawei.agconnect.crash.AGConnectCrash
+
 
 class GalleryFragment : Fragment() {
 
@@ -31,10 +33,6 @@ class GalleryFragment : Fragment() {
         _binding = FragmentGalleryBinding.inflate(inflater, container, false)
         val root: View = binding.root
 
-        val textView: TextView = binding.textGallery
-        galleryViewModel.text.observe(viewLifecycleOwner, Observer {
-            textView.text = it
-        })
         return root
     }
 

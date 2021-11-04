@@ -13,12 +13,15 @@ import com.huawei.hms.support.account.service.AccountAuthService
 import com.huawei.hms.support.feature.result.CommonConstant
 import za.org.famba.exampleapp.MainActivity
 import za.org.famba.exampleapp.databinding.ActivityLoginBinding
-import za.org.famba.exampleapp.utils.SessionManager
 import android.graphics.Color
 
 import cc.cloudist.acplibrary.ACProgressConstant
 
 import cc.cloudist.acplibrary.ACProgressFlower
+import com.huawei.agconnect.crash.AGConnectCrash
+import com.huawei.hms.analytics.HiAnalytics
+import com.huawei.hms.analytics.HiAnalyticsInstance
+import com.huawei.hms.analytics.HiAnalyticsTools
 
 
 class LoginActivity : AppCompatActivity() {
@@ -27,6 +30,7 @@ class LoginActivity : AppCompatActivity() {
     private lateinit var authParam: AccountAuthParams
     private val REQUEST_CODE_SIGN_IN = 1000
     private val TAG = "Account"
+    private lateinit var instance: HiAnalyticsInstance
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,6 +41,9 @@ class LoginActivity : AppCompatActivity() {
         binding.login.setOnClickListener {
             silentSignInByHwId()
         }
+
+        HiAnalyticsTools.enableLog()
+        instance = HiAnalytics.getInstance(this)
     }
 
     private fun silentSignInByHwId() {
@@ -63,7 +70,7 @@ class LoginActivity : AppCompatActivity() {
         task.addOnFailureListener { e ->
             dialog.dismiss()
             if (e is ApiException) {
-                val apiException = e
+                AGConnectCrash.getInstance().recordException(e)
                 val signInIntent = authService!!.signInIntent
 
                 Log.i(TAG, e.message!!)
@@ -98,6 +105,10 @@ class LoginActivity : AppCompatActivity() {
         bundle.putString(CommonConstant.KEY_DISPLAY_NAME, account!!.displayName)
         bundle.putString(CommonConstant.KEY_EMAIL, account!!.email)
         bundle.putString(CommonConstant.KEY_PHOTO_URI, account!!.avatarUriString)
+
+        val logInUser = Bundle()
+        logInUser.putString(CommonConstant.KEY_EMAIL, account!!.email)
+        instance.onEvent(com.huawei.hms.analytics.type.HAEventType.SIGNIN, logInUser)
 
         val openMain = Intent(this, MainActivity::class.java)
         openMain.putExtras(bundle)

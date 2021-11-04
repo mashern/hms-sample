@@ -15,7 +15,6 @@ import com.google.android.material.navigation.NavigationView
 import com.huawei.hms.support.feature.result.CommonConstant
 import com.squareup.picasso.Picasso
 import za.org.famba.exampleapp.databinding.ActivityMainBinding
-import za.org.famba.exampleapp.utils.SessionManager
 
 class MainActivity : AppCompatActivity() {
 
