@@ -1,12 +1,9 @@
 package za.org.famba.exampleapp.ui.login
 
-import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import com.google.android.material.snackbar.Snackbar
 import com.huawei.hms.common.ApiException
 import com.huawei.hms.support.account.AccountAuthManager
 import com.huawei.hms.support.account.request.AccountAuthParams
@@ -14,9 +11,15 @@ import com.huawei.hms.support.account.request.AccountAuthParamsHelper
 import com.huawei.hms.support.account.result.AuthAccount
 import com.huawei.hms.support.account.service.AccountAuthService
 import com.huawei.hms.support.feature.result.CommonConstant
+import za.org.famba.exampleapp.MainActivity
 import za.org.famba.exampleapp.databinding.ActivityLoginBinding
 import za.org.famba.exampleapp.utils.SessionManager
-import kotlin.math.sin
+import android.graphics.Color
+
+import cc.cloudist.acplibrary.ACProgressConstant
+
+import cc.cloudist.acplibrary.ACProgressFlower
+
 
 class LoginActivity : AppCompatActivity() {
     private lateinit var binding: ActivityLoginBinding
@@ -37,6 +40,13 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun silentSignInByHwId() {
+        val dialog = ACProgressFlower.Builder(this)
+            .direction(ACProgressConstant.DIRECT_CLOCKWISE)
+            .themeColor(Color.WHITE)
+            .text("Sing in ...")
+            .fadeColor(Color.DKGRAY).build()
+        dialog.show()
+
         authParam = AccountAuthParamsHelper(AccountAuthParams.DEFAULT_AUTH_REQUEST_PARAM)
             .setEmail()
             .createParams()
@@ -45,11 +55,13 @@ class LoginActivity : AppCompatActivity() {
 
         val task = authService!!.silentSignIn()
         task.addOnSuccessListener { account ->
+            dialog.dismiss()
             dealWithResultOfSignIn(account)
         }
 
 
         task.addOnFailureListener { e ->
+            dialog.dismiss()
             if (e is ApiException) {
                 val apiException = e
                 val signInIntent = authService!!.signInIntent
@@ -82,16 +94,14 @@ class LoginActivity : AppCompatActivity() {
     }
 
     private fun dealWithResultOfSignIn(account: AuthAccount?) {
-        Log.i(TAG, "display name:" + account!!.displayName);
-        Log.i(TAG, "photo uri string:" + account!!.avatarUriString);
-        Log.i(TAG, "photo uri:" + account!!.avatarUri);
-        Log.i(TAG, "email:" + account.email);
-        Log.i(TAG, "openid:" + account.openId);
-        Log.i(TAG, "unionid:" + account.unionId);
+        val bundle = Bundle()
+        bundle.putString(CommonConstant.KEY_DISPLAY_NAME, account!!.displayName)
+        bundle.putString(CommonConstant.KEY_EMAIL, account!!.email)
+        bundle.putString(CommonConstant.KEY_PHOTO_URI, account!!.avatarUriString)
 
-        SessionManager.setString(CommonConstant.KEY_DISPLAY_NAME, account!!.displayName)
-        SessionManager.setString(CommonConstant.KEY_EMAIL, account!!.email)
-        SessionManager.setString("photo", account!!.avatarUriString)
+        val openMain = Intent(this, MainActivity::class.java)
+        openMain.putExtras(bundle)
+        startActivity(openMain)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
@@ -102,7 +112,7 @@ class LoginActivity : AppCompatActivity() {
                 val authAccount = authAccountTask.result
                 dealWithResultOfSignIn(authAccount)
             } else {
-               TODO("Add fail dialog")
+                TODO("Add fail dialog")
             }
         }
     }
