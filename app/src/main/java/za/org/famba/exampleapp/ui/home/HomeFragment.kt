@@ -94,9 +94,9 @@ class HomeFragment : Fragment(), OnMapReadyCallback {
                 } else {
                     val build = CameraPosition.Builder()
                         .target(LatLng(location.latitude, location.longitude))
-                        .zoom(20f)
+                        .zoom(10f)
                         .bearing(90f)
-                        .tilt(30f)
+                        .tilt(20f)
                         .build()
                     val cameraUpdate = CameraUpdateFactory.newCameraPosition(build)
                     huaweiMap?.animateCamera(cameraUpdate);
