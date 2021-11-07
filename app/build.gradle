@@ -20,7 +20,7 @@ android {
 
     signingConfigs {
         config {
-            storeFile file('D:\\src\\apps\\ExampleApp\\assets\\application.jks')
+            storeFile file('..\\assets\\application.jks')
             storePassword 'android'
             keyPassword 'android'
             keyAlias 'Appplication'
